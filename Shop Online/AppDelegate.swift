@@ -11,7 +11,7 @@ import FirebaseAuth
 import FirebaseMessaging
 import GoogleSignIn
 import RxSwift
-import FBSDKCoreKit
+//import FBSDKCoreKit
 
 
 @main
