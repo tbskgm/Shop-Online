@@ -10,7 +10,7 @@ import Firebase
 import FirebaseAuth
 import FirebaseMessaging
 import GoogleSignIn
-import RxSwift
+//import RxSwift
 import FBSDKCoreKit
 
 
@@ -38,7 +38,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, GIDSignInDelegate {
             let authOptions: UNAuthorizationOptions = [.alert, .badge, .sound]
             UNUserNotificationCenter.current().requestAuthorization(
                 options: authOptions,
-                completionHandler: {_ ,_ in })  //追加修正点(,  in →_ ,_ in )
+                completionHandler: {_ ,_ in })
         } else {
             let settings: UIUserNotificationSettings =
                 UIUserNotificationSettings(types: [.alert, .badge, .sound], categories: nil)
