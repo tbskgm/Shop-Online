@@ -137,7 +137,7 @@ class LogInViewController: UIViewController, FUIAuthDelegate {
         guard let password = passwordTextField.text, passwordTextField.text != "" else {
             return labelAlert(text: "パスワードを登録してください")
         }
-        // 移行
+        // 移行予定
         /*var email: String { mailAddressTextField.text! }
         var password: String { passwordTextField.text! }
         */

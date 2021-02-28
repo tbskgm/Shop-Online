@@ -29,6 +29,7 @@
 		4DFC3DAA25E5E4AC00AC6A3E /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 4DFC3DA925E5E4AC00AC6A3E /* GoogleService-Info.plist */; };
 		4DFC3E3E25E5FEC300AC6A3E /* SearchRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4DFC3E3D25E5FEC300AC6A3E /* SearchRouter.swift */; };
 		4DFC3E9125E64BD600AC6A3E /* LogInViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4DFC3E9025E64BD600AC6A3E /* LogInViewModel.swift */; };
+		4DFC3FBD25EB4A2D00AC6A3E /* LogInRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4DFC3FBC25EB4A2D00AC6A3E /* LogInRouter.swift */; };
 		50A1422929510F0D105CF94B /* Pods_Shop_Online.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C3FDBA7034854A9466266A33 /* Pods_Shop_Online.framework */; };
 		6F31011E923FBC37BD400143 /* Pods_Shop_OnlineTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A8375DBA2AA5580792E1B09B /* Pods_Shop_OnlineTests.framework */; };
 /* End PBXBuildFile section */
@@ -80,6 +81,7 @@
 		4DFC3DA925E5E4AC00AC6A3E /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "GoogleService-Info.plist"; path = "../../Shop Online認証/GoogleService-Info.plist"; sourceTree = "<group>"; };
 		4DFC3E3D25E5FEC300AC6A3E /* SearchRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchRouter.swift; sourceTree = "<group>"; };
 		4DFC3E9025E64BD600AC6A3E /* LogInViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogInViewModel.swift; sourceTree = "<group>"; };
+		4DFC3FBC25EB4A2D00AC6A3E /* LogInRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogInRouter.swift; sourceTree = "<group>"; };
 		888088D98A4E9DCBC1BCC23B /* Pods-Shop Online.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Shop Online.release.xcconfig"; path = "Target Support Files/Pods-Shop Online/Pods-Shop Online.release.xcconfig"; sourceTree = "<group>"; };
 		A8375DBA2AA5580792E1B09B /* Pods_Shop_OnlineTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Shop_OnlineTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		C3FDBA7034854A9466266A33 /* Pods_Shop_Online.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Shop_Online.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -175,7 +177,7 @@
 			path = "Shop OnlineUITests";
 			sourceTree = "<group>";
 		};
-		4D8AE55025B9974500B8E49D /* SearchViewController */ = {
+		4D8AE55025B9974500B8E49D /* SearchView */ = {
 			isa = PBXGroup;
 			children = (
 				4D48CECA259490D6006F0F61 /* SearchViewController.swift */,
@@ -183,7 +185,7 @@
 				4D48CEE42599E5E8006F0F61 /* CollectionViewCell.swift */,
 				4D7A5073259DC4E700436032 /* SecondShopCollectionViewDataSource.swift */,
 			);
-			path = SearchViewController;
+			path = SearchView;
 			sourceTree = "<group>";
 		};
 		4D8AE55725BA815000B8E49D /* Repository */ = {
@@ -195,14 +197,14 @@
 			path = Repository;
 			sourceTree = "<group>";
 		};
-		4D8AE5F225BEE75D00B8E49D /* LoginViewController */ = {
+		4D8AE5F225BEE75D00B8E49D /* LoginView */ = {
 			isa = PBXGroup;
 			children = (
 				4D8AE54825B9302A00B8E49D /* LogInViewController.swift */,
 				4D4870AA25C268670059381A /* SignInWithMailAddressViewController.swift */,
 				4D8AE5FD25BEFCDE00B8E49D /* ForgetPasswordViewController.swift */,
 			);
-			path = LoginViewController;
+			path = LoginView;
 			sourceTree = "<group>";
 		};
 		4DFC3DB125E5E60600AC6A3E /* Entity */ = {
@@ -226,8 +228,8 @@
 			isa = PBXGroup;
 			children = (
 				4D4FB6712590DF29007341D2 /* Main.storyboard */,
-				4D8AE5F225BEE75D00B8E49D /* LoginViewController */,
-				4D8AE55025B9974500B8E49D /* SearchViewController */,
+				4D8AE5F225BEE75D00B8E49D /* LoginView */,
+				4D8AE55025B9974500B8E49D /* SearchView */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -235,6 +237,7 @@
 		4DFC3E0725E5FD9E00AC6A3E /* Router */ = {
 			isa = PBXGroup;
 			children = (
+				4DFC3FBC25EB4A2D00AC6A3E /* LogInRouter.swift */,
 				4DFC3E3D25E5FEC300AC6A3E /* SearchRouter.swift */,
 			);
 			path = Router;
@@ -586,6 +589,7 @@
 				4D4FB66C2590DF29007341D2 /* AppDelegate.swift in Sources */,
 				4D48CEE52599E5E8006F0F61 /* CollectionViewCell.swift in Sources */,
 				4D8AE5FE25BEFCDE00B8E49D /* ForgetPasswordViewController.swift in Sources */,
+				4DFC3FBD25EB4A2D00AC6A3E /* LogInRouter.swift in Sources */,
 				4D4CF0FB25AD928C00256351 /* Entity.swift in Sources */,
 				4D4870AB25C268670059381A /* SignInWithMailAddressViewController.swift in Sources */,
 				4D7A5086259F06F500436032 /* ItemDetailViewController.swift in Sources */,
