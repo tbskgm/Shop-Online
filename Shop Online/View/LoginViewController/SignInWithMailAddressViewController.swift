@@ -7,6 +7,7 @@
 
 import UIKit
 import FirebaseAuth
+import RxSwift
 
 class SignInWithMailAddressViewController: UIViewController {
 
@@ -15,11 +16,10 @@ class SignInWithMailAddressViewController: UIViewController {
     @IBOutlet weak var messageLabel: UILabel!
     @IBOutlet weak var signInButton: UIButton!
     
-    //let logInViewModel: LogInViewModelProtocol = LogInViewModel()
-    //let alertViewModel: AlertViewModelProtocol = AlertViewModel()
-    let alertViewModel = AlertViewModel()
-    let logInViewModel = LogInViewModel()
+    let logInViewModel: LogInViewModelProtocol = LogInViewModel()
+    let alertViewModel: AlertViewModelProtocol = AlertViewModel()
     
+    let disposeBag = DisposeBag()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -32,11 +32,7 @@ class SignInWithMailAddressViewController: UIViewController {
         super.viewWillAppear(animated)
         
         guard Auth.auth().currentUser == nil else {
-            /*別の遷移方法じゃないと落ちる*/
-            self.performSegue(withIdentifier: "SearchViewController", sender: self)
-            self.dismiss(animated: true) {
-                print("ログイン画面に遷移しました")
-            }
+            self.dismiss(animated: true)
             return
         }
     }
@@ -87,18 +83,16 @@ class SignInWithMailAddressViewController: UIViewController {
                 return self.present(alert, animated: true)
             }
             
-            logInViewModel.reSendEmail(email: email).subscribe(
-                onSuccess: { result in
-                    self.labelAlert(text: "メールを再送信しました")
-                }, onError: { error in
-                    // https://firebase.google.com/docs/crashlytics/customize-crash-reports#log-excepts
-                    // Crashlytics実装
-                    let title = "メールの送信に失敗しました"
-                    let alert = self.alertViewModel.showAlert(title: title, message: "\(error.localizedDescription)")
-                    self.present(alert, animated: true, completion: nil)
-                }
-            )
-            
+            logInViewModel.reSendEmail(email: email).subscribe(onSuccess: { result in
+                self.labelAlert(text: "メールを再送信しました")
+            }, onError: { error in
+                // https://firebase.google.com/docs/crashlytics/customize-crash-reports#log-excepts
+                // Crashlytics実装
+                let title = "メールの送信に失敗しました"
+                let alert = self.alertViewModel.showAlert(title: title, message: "\(error.localizedDescription)")
+                self.present(alert, animated: true, completion: nil)
+            })
+            .disposed(by: disposeBag)
         }
         
     }

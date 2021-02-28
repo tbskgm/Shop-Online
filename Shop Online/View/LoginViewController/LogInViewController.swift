@@ -6,14 +6,17 @@
 //
 
 import UIKit
+// 認証関係
 import GoogleSignIn
 import FirebaseAuth
-import FirebaseDatabase
 import FirebaseUI
+
+import FirebaseDatabase
 import Firebase
 import FirebaseCrashlytics
+import RxSwift
 
-class LoginViewController: UIViewController, FUIAuthDelegate {
+class LogInViewController: UIViewController, FUIAuthDelegate {
     
     @IBOutlet weak var mailAddressTextField: UITextField!
     @IBOutlet weak var passwordTextField: UITextField!
@@ -21,11 +24,10 @@ class LoginViewController: UIViewController, FUIAuthDelegate {
     @IBOutlet weak var showLogInStateLabel: UILabel!
     @IBOutlet weak var messageLabel: UILabel!
     
-    //let alertViewModel: AlertViewModelProtocol = AlertViewModel()
-    //let logInViewModel: LogInViewModelProtocol = LogInViewModel()
+    let alertViewModel: AlertViewModelProtocol = AlertViewModel()
+    let logInViewModel: LogInViewModelProtocol = LogInViewModel()
+    let disposeBag = DisposeBag()
     
-    let alertViewModel = AlertViewModel()
-    let logInViewModel = LogInViewModel()
     
     
     var authHandle: AuthStateDidChangeListenerHandle?
@@ -41,18 +43,17 @@ class LoginViewController: UIViewController, FUIAuthDelegate {
         GIDSignIn.sharedInstance()?.presentingViewController = self
         
         // ログイン状況を確認してlabelにこのテキストを書く
-        logInViewModel.logInState().subscribe(
-            onSuccess: { result in
-                if result == "nil" {
-                    self.showLogInStateLabel.text = "ログインされたことがないので新規登録をお願い致します。"
-                } else {
-                    self.showLogInStateLabel.text = result
-                }
-            }, onError: { error in
-                print("error: \(error)")
-                fatalError()
-            })
-            .dispose()
+        logInViewModel.logInState().subscribe(onSuccess: { result in
+            if result == "nil" {
+                self.showLogInStateLabel.text = "ログインされたことがないので新規登録をお願い致します。"
+            } else {
+                self.showLogInStateLabel.text = result
+            }
+        }, onError: { error in
+            let alert = self.alertViewModel.showAlert(title: "", message: "\(error.localizedDescription)")
+            self.present(alert, animated: true)
+        })
+        .disposed(by: disposeBag)
         
     }
     
@@ -62,16 +63,12 @@ class LoginViewController: UIViewController, FUIAuthDelegate {
         super.viewWillAppear(animated)
         
         if Auth.auth().currentUser != nil, firstTimeSetup == true {
-            //print("自動ログインします")
             self.performSegue(withIdentifier: "SearchViewController", sender: self)
-        } else {
-            //print("自動ログインできませんでした")
         }
         
         // ユーザーのログイン状態が変更される度に呼び出され、変更される度に実行したい処理をここに書きます。
         authHandle = Auth.auth().addStateDidChangeListener({ (auth, user) in
             // ログイン状態が変更された時の処理を書く
-            print("addStateDidChangeListenerに入る")
         })
         firstTimeSetup = false
     }
@@ -89,6 +86,9 @@ class LoginViewController: UIViewController, FUIAuthDelegate {
         self.view.endEditing(true)
     }
     
+    func transition() {
+        self.performSegue(withIdentifier: "SearchViewController", sender: self)
+    }
     
     // labelのアラートを出す
     func labelAlert(text: String) {
@@ -137,33 +137,20 @@ class LoginViewController: UIViewController, FUIAuthDelegate {
         guard let password = passwordTextField.text, passwordTextField.text != "" else {
             return labelAlert(text: "パスワードを登録してください")
         }
+        // 移行
+        /*var email: String { mailAddressTextField.text! }
+        var password: String { passwordTextField.text! }
+        */
         
         // ログイン処理
-        logInViewModel.logInWithMailAddress(email: email, password: password).subscribe(onSuccess: {
-            result in
-            print("logInWithMailAddressのperformSegueを実行します")
+        logInViewModel.logInWithMailAddress(email: email, password: password).subscribe(onSuccess: { result in
             self.performSegue(withIdentifier: "SearchViewController", sender: self)
-            self.userDefaults.removeObject(forKey: "isSendEmail")
-        }, onError: {
-            error in
+            //self.userDefaults.removeObject(forKey: "isSendEmail")
+        }, onError: { error in
             let alert = self.alertViewModel.showAlert(title: "", message: "\(error.localizedDescription)")
             self.present(alert, animated: true, completion: nil)
         })
-        .dispose()
-        /*
-        // ログイン
-        Auth.auth().signIn(withEmail: email, password: password) { [weak self] authResult, error in
-            // Firebaseにかいてあったからある(何するのか不明)
-            guard let strongSelf = self else {
-                return
-            }
-            
-            guard let user = authResult?.user, error == nil else {
-                print("サインインに失敗しました:" ,error!.localizedDescription)
-                return
-            }
-            print("サインインに成功しました", user.email!)
-        }*/
+        .disposed(by: disposeBag)
     }
     
     
@@ -171,6 +158,7 @@ class LoginViewController: UIViewController, FUIAuthDelegate {
     @IBAction func signInWithMailAddressButton(_ sender: Any) {
         closeKeyboard()
         // 画面遷移
+        
     }
     
     
@@ -198,27 +186,14 @@ class LoginViewController: UIViewController, FUIAuthDelegate {
     // 匿名でサインイン
     @IBAction func signInWithAnnoymouslyButton(_ sender: Any) {
         closeKeyboard()
-        logInViewModel.signInWithAnnoymously().subscribe(onSuccess: {
-            result in
+        logInViewModel.signInWithAnnoymously().subscribe(onSuccess: { result in
             if result == true {
                 self.performSegue(withIdentifier: "SearchViewController", sender: self)
             }
-        }, onError: {
-            error in
+        }, onError: { error in
             self.labelAlert(text: "匿名のサインインに失敗しました: \(error)")
         })
-        .dispose()
-        /*Auth.auth().signInAnonymously { (authResult, error) in
-            guard let user = authResult?.user, error == nil else {
-                print("匿名サインインに失敗しました: \(error!.localizedDescription)")
-                let alert = self.alertViewModel.showAlert(title: "", message: "匿名サインインに失敗しました: \(error!.localizedDescription)")
-                return self.present(alert, animated: true)
-            }
-            
-            print("匿名サインインに成功しました", user.uid)
-            self.userDefaults.set("gest", forKey: "howToLogIn")
-            self.performSegue(withIdentifier: "SearchViewController", sender: self)
-        }*/
+        .disposed(by: disposeBag)
     }
     
     // サインアウトボタン
@@ -231,28 +206,12 @@ class LoginViewController: UIViewController, FUIAuthDelegate {
             error in
             self.labelAlert(text: "サインアウトに失敗しました: \(error)")
         })
-        .dispose()
-        /*
-        let firebaseAuth = Auth.auth()
-        do {
-            try firebaseAuth.signOut()
-            print("アインアウト成功")
-            userDefaults.set("none", forKey: "howToLogIn")
-        } catch let signOutError as NSError {
-            print ("サインアウトに失敗しました: %@", signOutError)
-        }*/
+        .disposed(by: disposeBag)
     }
-    
-    
-    // ログイン画面に戻る処理
-    @IBAction func backLogInViewController(_ sugue: UIStoryboardSegue) {
-        // 本気で始める参照
-    }
-    
 }
 
 
-extension LoginViewController: UITextFieldDelegate {
+extension LogInViewController: UITextFieldDelegate {
     // returnキーをタップしてキーボードを閉じる処理
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         textField.resignFirstResponder()

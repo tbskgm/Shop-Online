@@ -13,7 +13,6 @@
 		4D48CEE52599E5E8006F0F61 /* CollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D48CEE42599E5E8006F0F61 /* CollectionViewCell.swift */; };
 		4D48CEEA259AC93C006F0F61 /* SearchViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D48CEE9259AC93C006F0F61 /* SearchViewModel.swift */; };
 		4D48CEFF259ACE89006F0F61 /* SearchRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D48CEFE259ACE89006F0F61 /* SearchRepository.swift */; };
-		4D48CF26259B3D03006F0F61 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 4D48CF25259B3D02006F0F61 /* GoogleService-Info.plist */; };
 		4D4CF0FB25AD928C00256351 /* Entity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D4CF0FA25AD928C00256351 /* Entity.swift */; };
 		4D4FB66C2590DF29007341D2 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D4FB66B2590DF29007341D2 /* AppDelegate.swift */; };
 		4D4FB66E2590DF29007341D2 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D4FB66D2590DF29007341D2 /* SceneDelegate.swift */; };
@@ -24,9 +23,12 @@
 		4D4FB68E2590DF2E007341D2 /* Shop_OnlineUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D4FB68D2590DF2E007341D2 /* Shop_OnlineUITests.swift */; };
 		4D7A5074259DC4E700436032 /* SecondShopCollectionViewDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D7A5073259DC4E700436032 /* SecondShopCollectionViewDataSource.swift */; };
 		4D7A5086259F06F500436032 /* ItemDetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D7A5085259F06F500436032 /* ItemDetailViewController.swift */; };
-		4D8AE54925B9302A00B8E49D /* LoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D8AE54825B9302A00B8E49D /* LoginViewController.swift */; };
-		4D8AE55925BA816D00B8E49D /* LoginRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D8AE55825BA816D00B8E49D /* LoginRepository.swift */; };
+		4D8AE54925B9302A00B8E49D /* LogInViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D8AE54825B9302A00B8E49D /* LogInViewController.swift */; };
+		4D8AE55925BA816D00B8E49D /* LogInRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D8AE55825BA816D00B8E49D /* LogInRepository.swift */; };
 		4D8AE5FE25BEFCDE00B8E49D /* ForgetPasswordViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D8AE5FD25BEFCDE00B8E49D /* ForgetPasswordViewController.swift */; };
+		4DFC3DAA25E5E4AC00AC6A3E /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 4DFC3DA925E5E4AC00AC6A3E /* GoogleService-Info.plist */; };
+		4DFC3E3E25E5FEC300AC6A3E /* SearchRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4DFC3E3D25E5FEC300AC6A3E /* SearchRouter.swift */; };
+		4DFC3E9125E64BD600AC6A3E /* LogInViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4DFC3E9025E64BD600AC6A3E /* LogInViewModel.swift */; };
 		50A1422929510F0D105CF94B /* Pods_Shop_Online.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C3FDBA7034854A9466266A33 /* Pods_Shop_Online.framework */; };
 		6F31011E923FBC37BD400143 /* Pods_Shop_OnlineTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A8375DBA2AA5580792E1B09B /* Pods_Shop_OnlineTests.framework */; };
 /* End PBXBuildFile section */
@@ -56,7 +58,6 @@
 		4D48CEE42599E5E8006F0F61 /* CollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionViewCell.swift; sourceTree = "<group>"; };
 		4D48CEE9259AC93C006F0F61 /* SearchViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchViewModel.swift; sourceTree = "<group>"; };
 		4D48CEFE259ACE89006F0F61 /* SearchRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchRepository.swift; sourceTree = "<group>"; };
-		4D48CF25259B3D02006F0F61 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "GoogleService-Info.plist"; sourceTree = SOURCE_ROOT; };
 		4D4CF0FA25AD928C00256351 /* Entity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Entity.swift; sourceTree = "<group>"; };
 		4D4FB6682590DF29007341D2 /* Shop Online.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Shop Online.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		4D4FB66B2590DF29007341D2 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -73,9 +74,12 @@
 		4D4FB68F2590DF2E007341D2 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		4D7A5073259DC4E700436032 /* SecondShopCollectionViewDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecondShopCollectionViewDataSource.swift; sourceTree = "<group>"; };
 		4D7A5085259F06F500436032 /* ItemDetailViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemDetailViewController.swift; sourceTree = "<group>"; };
-		4D8AE54825B9302A00B8E49D /* LoginViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewController.swift; sourceTree = "<group>"; };
-		4D8AE55825BA816D00B8E49D /* LoginRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginRepository.swift; sourceTree = "<group>"; };
+		4D8AE54825B9302A00B8E49D /* LogInViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogInViewController.swift; sourceTree = "<group>"; };
+		4D8AE55825BA816D00B8E49D /* LogInRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogInRepository.swift; sourceTree = "<group>"; };
 		4D8AE5FD25BEFCDE00B8E49D /* ForgetPasswordViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ForgetPasswordViewController.swift; sourceTree = "<group>"; };
+		4DFC3DA925E5E4AC00AC6A3E /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "GoogleService-Info.plist"; path = "../../Shop Online認証/GoogleService-Info.plist"; sourceTree = "<group>"; };
+		4DFC3E3D25E5FEC300AC6A3E /* SearchRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchRouter.swift; sourceTree = "<group>"; };
+		4DFC3E9025E64BD600AC6A3E /* LogInViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogInViewModel.swift; sourceTree = "<group>"; };
 		888088D98A4E9DCBC1BCC23B /* Pods-Shop Online.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Shop Online.release.xcconfig"; path = "Target Support Files/Pods-Shop Online/Pods-Shop Online.release.xcconfig"; sourceTree = "<group>"; };
 		A8375DBA2AA5580792E1B09B /* Pods_Shop_OnlineTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Shop_OnlineTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		C3FDBA7034854A9466266A33 /* Pods_Shop_Online.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Shop_Online.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -140,15 +144,14 @@
 			children = (
 				4D4FB66B2590DF29007341D2 /* AppDelegate.swift */,
 				4D4FB66D2590DF29007341D2 /* SceneDelegate.swift */,
-				4D4CF0FA25AD928C00256351 /* Entity.swift */,
+				4DFC3DB125E5E60600AC6A3E /* Entity */,
 				4D8AE55725BA815000B8E49D /* Repository */,
-				4D48CEE9259AC93C006F0F61 /* SearchViewModel.swift */,
-				4D8AE5F225BEE75D00B8E49D /* LoginViewController */,
-				4D8AE55025B9974500B8E49D /* SearchViewController */,
-				4D4FB6712590DF29007341D2 /* Main.storyboard */,
+				4DFC3DB225E5E61500AC6A3E /* Model */,
+				4DFC3DB325E5E62900AC6A3E /* View */,
+				4DFC3E0725E5FD9E00AC6A3E /* Router */,
 				4D4FB6742590DF2D007341D2 /* Assets.xcassets */,
 				4D4FB6762590DF2D007341D2 /* LaunchScreen.storyboard */,
-				4D48CF25259B3D02006F0F61 /* GoogleService-Info.plist */,
+				4DFC3DA925E5E4AC00AC6A3E /* GoogleService-Info.plist */,
 				4D4FB6792590DF2D007341D2 /* Info.plist */,
 			);
 			path = "Shop Online";
@@ -186,7 +189,7 @@
 		4D8AE55725BA815000B8E49D /* Repository */ = {
 			isa = PBXGroup;
 			children = (
-				4D8AE55825BA816D00B8E49D /* LoginRepository.swift */,
+				4D8AE55825BA816D00B8E49D /* LogInRepository.swift */,
 				4D48CEFE259ACE89006F0F61 /* SearchRepository.swift */,
 			);
 			path = Repository;
@@ -195,11 +198,46 @@
 		4D8AE5F225BEE75D00B8E49D /* LoginViewController */ = {
 			isa = PBXGroup;
 			children = (
-				4D8AE54825B9302A00B8E49D /* LoginViewController.swift */,
+				4D8AE54825B9302A00B8E49D /* LogInViewController.swift */,
 				4D4870AA25C268670059381A /* SignInWithMailAddressViewController.swift */,
 				4D8AE5FD25BEFCDE00B8E49D /* ForgetPasswordViewController.swift */,
 			);
 			path = LoginViewController;
+			sourceTree = "<group>";
+		};
+		4DFC3DB125E5E60600AC6A3E /* Entity */ = {
+			isa = PBXGroup;
+			children = (
+				4D4CF0FA25AD928C00256351 /* Entity.swift */,
+			);
+			path = Entity;
+			sourceTree = "<group>";
+		};
+		4DFC3DB225E5E61500AC6A3E /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				4DFC3E9025E64BD600AC6A3E /* LogInViewModel.swift */,
+				4D48CEE9259AC93C006F0F61 /* SearchViewModel.swift */,
+			);
+			path = Model;
+			sourceTree = "<group>";
+		};
+		4DFC3DB325E5E62900AC6A3E /* View */ = {
+			isa = PBXGroup;
+			children = (
+				4D4FB6712590DF29007341D2 /* Main.storyboard */,
+				4D8AE5F225BEE75D00B8E49D /* LoginViewController */,
+				4D8AE55025B9974500B8E49D /* SearchViewController */,
+			);
+			path = View;
+			sourceTree = "<group>";
+		};
+		4DFC3E0725E5FD9E00AC6A3E /* Router */ = {
+			isa = PBXGroup;
+			children = (
+				4DFC3E3D25E5FEC300AC6A3E /* SearchRouter.swift */,
+			);
+			path = Router;
 			sourceTree = "<group>";
 		};
 		AB5C219214E6AD147D4AA2FA /* Frameworks */ = {
@@ -342,7 +380,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				4D4FB6782590DF2D007341D2 /* LaunchScreen.storyboard in Resources */,
-				4D48CF26259B3D03006F0F61 /* GoogleService-Info.plist in Resources */,
+				4DFC3DAA25E5E4AC00AC6A3E /* GoogleService-Info.plist in Resources */,
 				4D4FB6752590DF2D007341D2 /* Assets.xcassets in Resources */,
 				4D4FB6732590DF29007341D2 /* Main.storyboard in Resources */,
 			);
@@ -543,6 +581,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				4D48CECB259490D6006F0F61 /* SearchViewController.swift in Sources */,
+				4DFC3E9125E64BD600AC6A3E /* LogInViewModel.swift in Sources */,
 				4D48CEEA259AC93C006F0F61 /* SearchViewModel.swift in Sources */,
 				4D4FB66C2590DF29007341D2 /* AppDelegate.swift in Sources */,
 				4D48CEE52599E5E8006F0F61 /* CollectionViewCell.swift in Sources */,
@@ -551,9 +590,10 @@
 				4D4870AB25C268670059381A /* SignInWithMailAddressViewController.swift in Sources */,
 				4D7A5086259F06F500436032 /* ItemDetailViewController.swift in Sources */,
 				4D7A5074259DC4E700436032 /* SecondShopCollectionViewDataSource.swift in Sources */,
-				4D8AE55925BA816D00B8E49D /* LoginRepository.swift in Sources */,
+				4D8AE55925BA816D00B8E49D /* LogInRepository.swift in Sources */,
+				4DFC3E3E25E5FEC300AC6A3E /* SearchRouter.swift in Sources */,
 				4D4FB66E2590DF29007341D2 /* SceneDelegate.swift in Sources */,
-				4D8AE54925B9302A00B8E49D /* LoginViewController.swift in Sources */,
+				4D8AE54925B9302A00B8E49D /* LogInViewController.swift in Sources */,
 				4D48CEFF259ACE89006F0F61 /* SearchRepository.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

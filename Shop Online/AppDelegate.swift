@@ -89,49 +89,35 @@ class AppDelegate: UIResponder, UIApplicationDelegate, GIDSignInDelegate {
     
     func sign(_ signIn: GIDSignIn!, didSignInFor user: GIDGoogleUser!, withError error: Error?) {
         if let error = error {
-            // ...
-            return print("GoogleSignInError: \(error.localizedDescription)")
+            return
         }
         
         guard let authentication = user.authentication else {
-            return print("Google authenticationが存在しません")
+            return
         }
         let credential = GoogleAuthProvider.credential(withIDToken: authentication.idToken,
                                                        accessToken: authentication.accessToken)
         Auth.auth().signIn(with: credential) { authResult, error in
             if let error = error {
-                print("Google SignIn Failure!", error.localizedDescription)
                 return
             }
             
-            print("Google SignIn Success!")
             let userDefaults = UserDefaults.standard
             userDefaults.set("Google", forKey: "howToLogIn")
             
-            //func transition() -> Single<Bool> {
-            //    transitionToSearchViewController()
-            //}
+            // 画面遷移する処理
+            let storyboard = UIStoryboard(name: "Main", bundle: nil)
+            let topviewController = storyboard.instantiateViewController(withIdentifier: "SearchViewController")
+            (UIApplication.shared.keyWindow?.rootViewController as! UINavigationController).pushViewController(topviewController, animated: false)
+            
+            /*失敗例*/
+            //let storyboard = UIStoryboard(name: "Main", bundle: nil)
+            //let topviewController = storyboard.instantiateViewController(withIdentifier: "ViewController")
+            //window!.rootViewController = topviewController
+            //window!.makeKeyAndVisible()
             
         }
     }
-    /* 追加
-    func sign(_ signIn: GIDSignIn!, didSignInFor user: GIDGoogleUser!, withError error: Error?) {
-        guard let controller = GIDSignIn.sharedInstance().presentingViewController as? MainViewController else {
-            return
-        }
-        if let error = error {
-            controller.showMessagePrompt(error.localizedDescription)
-            return
-        }
-        
-        guard let authentication = user.authentication else {
-            return
-        }
-        let credential = GoogleAuthProvider.credential(withIDToken: authentication.idToken,
-                                                       accessToken: authentication.accessToken)
-        controller.firebaseLogin(credential)
-
-    }*/
     
     // ユーザーがアプリから切断する処理
     func sign(_ signIn: GIDSignIn!, didDisconnectWith user: GIDGoogleUser!, withError error: Error!) {
