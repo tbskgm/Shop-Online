@@ -143,9 +143,15 @@ class LogInRepository: LogInRepositoryProtocol {
                     returnCase = .error
                     return
                 }
-                returnValue = "sendEmail"
-                returnCase = .sendEmail
-                self.sendAuthenticationLinkEmail(email: email)
+                
+                self.sendAuthenticationLinkEmail(email: email).subscribe(onSuccess: { result in
+                    returnValue = "sendEmail"
+                    returnCase = .sendEmail
+                }, onError: { error in
+                    returnValue = error.localizedDescription
+                    returnCase = .error
+                })
+                .dispose()
             }
         }
         return (returnCase, returnValue)
@@ -179,6 +185,7 @@ class LogInRepository: LogInRepositoryProtocol {
                 }, onError: { error in
                     single(.error(error))
                 })
+                .dispose()
             return Disposables.create()
         }
     }
@@ -223,11 +230,9 @@ class LogInRepository: LogInRepositoryProtocol {
     func signInWithAnnoymously() -> Single<Bool> {
         return Single<Bool>.create { single -> Disposable in
             Auth.auth().signInAnonymously { authResult, error in
-                guard let user = authResult?.user, error == nil else {
-                    //print("匿名サインインに失敗しました: \(String(describing: error!.localizedDescription))")
+                guard let _ = authResult?.user, error == nil else {
                     return single(.error(error!))
                 }
-                //print("匿名サインインに成功しました", user.uid)
                 single(.success(true))
             }
             return Disposables.create()

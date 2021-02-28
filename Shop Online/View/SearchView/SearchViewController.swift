@@ -8,10 +8,10 @@
 import UIKit
 import FirebaseAuth
 import FirebaseDatabase
+import RxSwift
 
 
 class SearchViewController: UIViewController {
-    
     @IBOutlet weak var firstShopCollectioinView: UICollectionView!
     @IBOutlet weak var firstShopHeightConstraint: NSLayoutConstraint!
     @IBOutlet weak var secondShopCollectionView: UICollectionView!
@@ -19,7 +19,11 @@ class SearchViewController: UIViewController {
     
     //var secondShopCollectionViewDataSource: SecondShopCollectionViewDataSource?
     
-    let viewModel = SearchViewModel()
+    let searchViewModel = SearchViewModel()
+    let alertViewModel = AlertViewModel()
+    
+    let disposeBag = DisposeBag()
+    
     var yahooItemDatas = [YahooItemData]() // 検索結果を保存する
     var rakutenItemDatas = [RakutenItemData]() // 検索結果を保存する
     //var imageCache = NSCache<AnyObject, UIImage>()
@@ -76,10 +80,8 @@ extension SearchViewController: UICollectionViewDataSource, UICollectionViewDele
         //return items.count
         switch collectionView.tag {
         case 0:
-            print("yahooItemDataCount: \(yahooItemDatas.count)")
             return yahooItemDatas.count
         case 1:
-            print("rakutenItemDataCount: \(rakutenItemDatas.count)")
             return rakutenItemDatas.count
         default:
             assertionFailure("想定外のtagの検出です")
@@ -104,13 +106,14 @@ extension SearchViewController: UICollectionViewDataSource, UICollectionViewDele
             cell.itemUrl = itemData.itemUrl
             // 画像の設定処理
             let yahooImageUrl = itemData.itemImageUrl
-            viewModel.getImageUrl(yahooImageUrl: yahooImageUrl).subscribe(onSuccess: {
-                result in
+            searchViewModel.getImageUrl(yahooImageUrl: yahooImageUrl).subscribe(onSuccess: { result in
                 cell.imageView.image = result
-            }, onError: {
-                error in
-                print("error: \(error)")
+            }, onError: { error in
+                let message = "\(error.localizedDescription)"
+                let alert = self.alertViewModel.showAlert(title: "", message: message)
+                self.present(alert, animated: true)
             })
+            .disposed(by: disposeBag)
             
             return cell
         case 1:
@@ -125,16 +128,16 @@ extension SearchViewController: UICollectionViewDataSource, UICollectionViewDele
             cell.itemUrl = itemData.itemUrl
             // 画像の設定処理
             let rakutenImageUrl = itemData.itemImageUrl
-            viewModel.getImageUrl(rakutenImageUrl: rakutenImageUrl).subscribe(onSuccess: {
+            searchViewModel.getImageUrl(rakutenImageUrl: rakutenImageUrl).subscribe(onSuccess: {
                 result in
                 cell.imageView.image = result
-            }, onError: {
-                error in
-                print("error: \(error)")
+            }, onError: { error in
+                let message = "\(error.localizedDescription)"
+                let alert = self.alertViewModel.showAlert(title: "", message: message)
+                self.present(alert, animated: true)
             })
-            //viewModel.rakutenGetImageUrl(urls: urls) { result in
-            //    cell.imageView.image = result
-            //}
+            .disposed(by: disposeBag)
+            
             return cell
         default:
             assertionFailure("想定外の値の検出です")
@@ -160,7 +163,7 @@ extension SearchViewController: UISearchBarDelegate {
         }
         
         // 通信を使用し、Yahooから商品データを取得し画面に反映する
-        viewModel.getDataFromYahoo(keyword: keyword).subscribe(onSuccess: {
+        searchViewModel.getDataFromYahoo(keyword: keyword).subscribe(onSuccess: {
             result in
             // 処理を書く
             self.yahooItemDatas = result
@@ -168,14 +171,15 @@ extension SearchViewController: UISearchBarDelegate {
             DispatchQueue.main.async {
                 self.firstShopCollectioinView.reloadData()
             }
-        }, onError: {
-            error in
-            print("error: \(error.localizedDescription)")
+        }, onError: { error in
+            let message = "\(error.localizedDescription)"
+            let alert = self.alertViewModel.showAlert(title: "", message: message)
+            self.present(alert, animated: true)
         })
+        .disposed(by: disposeBag)
         
         // 通信を使用し、楽天から商品データを取得し画面に反映する
-        viewModel.getDataFromRakuten(keyword: keyword).subscribe(onSuccess: {
-            result in
+        searchViewModel.getDataFromRakuten(keyword: keyword).subscribe(onSuccess: { result in
             //処理を書く
             self.rakutenItemDatas = result
             
@@ -183,10 +187,12 @@ extension SearchViewController: UISearchBarDelegate {
                 self.secondShopCollectionView.reloadData() // Yahooの更新
             }
             
-        }, onError: {
-            error in
-            print("error: \(error.localizedDescription)")
+        }, onError: { error in
+            let message = "\(error.localizedDescription)"
+            let alert = self.alertViewModel.showAlert(title: "", message: message)
+            self.present(alert, animated: true)
         })
+        .disposed(by: disposeBag)
         
         
         /*
