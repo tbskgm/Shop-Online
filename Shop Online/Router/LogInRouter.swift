@@ -44,7 +44,6 @@ class LogInRouter: LogInRouterProtocol {
     /// 値の受け渡しを伴う画面遷移
     /// - Parameter WithIdentifier: 遷移先の画面を選択
     func push(withIdentifier: LogInRouterEnum) {
-        print(Thread.isMainThread)
         let storyboard: UIStoryboard = vc.storyboard!
         
         switch withIdentifier {
@@ -60,18 +59,6 @@ class LogInRouter: LogInRouterProtocol {
             /// 移動先のstoryboardを選択
             let logIn = storyboard.instantiateViewController(withIdentifier: withIdentifier.rawValue) as! SearchViewController
             vc.navigationController?.pushViewController(logIn, animated: true)
-        /**
-         /// 画面と紐付けられるため
-         let logIn = storyboard.instantiateViewController(withIdentifier: withIdentifier.rawValue) as! ForgetPasswordViewController
-         vc.navigationController?.pushViewController(logIn, animated: true)
-         
-         /// vc.でアクセス
-         logIn.
-         
-         /// 画面遷移
-         logIn.navigationController?.pushViewController(logIn, animated: true)
-         
-         */
         }
     }
 }
