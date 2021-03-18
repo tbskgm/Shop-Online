@@ -8,9 +8,9 @@
 import UIKit
 import FirebaseAuth
 import RxSwift
+import RealmSwift
 
 class SignInWithMailAddressViewController: UIViewController {
-
     @IBOutlet weak var mailAddressTextField: UITextField!
     @IBOutlet weak var passwordTextField: UITextField!
     @IBOutlet weak var messageLabel: UILabel!
@@ -18,6 +18,9 @@ class SignInWithMailAddressViewController: UIViewController {
     
     let logInViewModel: LogInViewModelProtocol = LogInViewModel()
     let alertViewModel: AlertViewModelProtocol = AlertViewModel()
+    let userDefaultsPresenter: UserDefaultsPresentation = UserDefaultsPresenter()
+    
+    lazy var router: LogInRouterProtocol = LogInRouter(vc: self)
     
     let disposeBag = DisposeBag()
     
@@ -26,18 +29,23 @@ class SignInWithMailAddressViewController: UIViewController {
 
         mailAddressTextField.delegate = self
         passwordTextField.delegate = self
+        
+        //let logInViewModel = LogInViewModel() {
+        //
+        //}
+        
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
         guard Auth.auth().currentUser == nil else {
-            self.dismiss(animated: true)
+            router.dismiss(animated: true, completion: nil)
             return
         }
     }
     
-    // labelのアラートを出す、ボタンの操作を一時停止
+    /// labelのアラートを出す、ボタンの操作を一時停止
     func labelAlert(text: String) {
         messageLabel.isHidden = false
         signInButton.isEnabled = false
@@ -49,41 +57,52 @@ class SignInWithMailAddressViewController: UIViewController {
         }
     }
     
-    // キーボードを閉じる
+    /// キーボードを閉じる
     func closeKeyboard() {
         mailAddressTextField.endEditing(true)
         passwordTextField.endEditing(true)
     }
     
-    
+    /// サインインするボタン
     @IBAction func signInButton(_ sender: Any) {
+        /// キーボードを閉じる
         closeKeyboard()
+        /// 連続してボタンを押せないようにする
+        signInButton.isEnabled = false
+        defer {
+            let queue = DispatchQueue.main
+            queue.asyncAfter(deadline: .now() + 2) {
+                self.signInButton.isEnabled = true
+            }
+        }
+        
+        /// メールアドレスで認証を行う
         let isSendEmail = UserDefaults.standard.bool(forKey: "isSendEmail")
         switch isSendEmail {
         case false:
-            
-            guard let email = mailAddressTextField.text, email != "" else {
-                return
-            }
-            guard let password = passwordTextField.text, password != "" else {
-                return
-            }
-            let result = logInViewModel.signInWithMailAddress(email: email, password: password)
-            let resultCase = result.case
-            if resultCase == .error {
-                // Crashlyticsを登録する
-                //https://firebase.google.com/docs/crashlytics/customize-crash-reports?authuser=1#log-excepts
-                let alert = self.alertViewModel.showAlert(title: "登録に失敗しました", message: "\(result.value)")
+            /// メールとパスワード生成
+            let email = mailAddressTextField.text!
+            let password = passwordTextField.text!
+                
+            logInViewModel.signInWithMailAddress(email: email, password: password).subscribe(onSuccess: { result in
+                guard result == true else {
+                    fatalError("falseは想定されていません")
+                }
+                self.labelAlert(text: "メールが送信されました")
+            }, onError: { error in
+                let alert = self.alertViewModel.showAlert(title: "", message: "\(error.localizedDescription)")
                 self.present(alert, animated: true)
-            }
+            })
+            .disposed(by: disposeBag)
         case true:
-            guard let email = UserDefaults.standard.string(forKey: "Email") else {
+            /// メールアドレスを取得
+            guard let email = userDefaultsPresenter.string(forKey: "Email") else {
                 // https://firebase.google.com/docs/crashlytics/customize-crash-reports#log-excepts
                 let alert = alertViewModel.showAlert(title: "", message: "エラーです")
                 return self.present(alert, animated: true)
             }
-            
-            logInViewModel.reSendEmail(email: email).subscribe(onSuccess: { result in
+            /// メールリンク認証を行う
+            logInViewModel.sendLinkEmail(email: email).subscribe(onSuccess: { result in
                 self.labelAlert(text: "メールを再送信しました")
             }, onError: { error in
                 // https://firebase.google.com/docs/crashlytics/customize-crash-reports#log-excepts
@@ -94,15 +113,18 @@ class SignInWithMailAddressViewController: UIViewController {
             })
             .disposed(by: disposeBag)
         }
-        
     }
-
 }
 
+
 extension SignInWithMailAddressViewController: UITextFieldDelegate {
-    // returnキーをタップしてキーボードを閉じる処理
+    /// returnキーをタップしてキーボードを閉じる処理
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         textField.resignFirstResponder()
         return true
+    }
+    /// textField以外をタップするとキーボードを閉じる
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        self.view.endEditing(true)
     }
 }

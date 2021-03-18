@@ -8,17 +8,21 @@
 import UIKit
 
 
-
+/// 遷移先を制限するためのenum
 enum LogInRouterEnum: String {
     case ForgetPasswordViewController
     case SignInWithMailAddressViewController
     case SearchViewController
 }
+/// ログイン画面のプロトコル
 protocol LogInRouterProtocol {
+    func dismiss(animated: Bool, completion: (() -> Void)?)
+    
     func segue(withIdentifier: LogInRouterEnum)
     
     func push(withIdentifier: LogInRouterEnum)
 }
+/// ログイン画面のRouter
 class LogInRouter: LogInRouterProtocol {
     private let vc: UIViewController!
     
@@ -26,20 +30,25 @@ class LogInRouter: LogInRouterProtocol {
         self.vc = vc
     }
     
-    // 値の受け渡しをしない遷移
+    /// 一つ前の画面に戻る処理
+    func dismiss(animated: Bool, completion: (() -> Void)? = nil) {
+        vc.dismiss(animated: animated, completion: completion)
+    }
+    
+    /// 値の受け渡しをしない遷移
     func segue(withIdentifier: LogInRouterEnum) {
         vc.performSegue(withIdentifier: withIdentifier.rawValue, sender: nil)
     }
     
     
-    
-    // 値の受け渡しを行う遷移
+    /// 値の受け渡しを伴う画面遷移
+    /// - Parameter WithIdentifier: 遷移先の画面を選択
     func push(withIdentifier: LogInRouterEnum) {
+        print(Thread.isMainThread)
         let storyboard: UIStoryboard = vc.storyboard!
         
         switch withIdentifier {
         case .ForgetPasswordViewController:
-            // MARK: - Properties
             /// 移動先のstoryboardを選択
             let logIn = storyboard.instantiateViewController(withIdentifier: withIdentifier.rawValue) as! ForgetPasswordViewController
             vc.navigationController?.pushViewController(logIn, animated: true)
