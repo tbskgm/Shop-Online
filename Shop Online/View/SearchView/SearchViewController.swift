@@ -17,17 +17,20 @@ class SearchViewController: UIViewController {
     @IBOutlet weak var secondShopCollectionView: UICollectionView!
     @IBOutlet weak var secondShopHeightConstraint: NSLayoutConstraint!
     
-    //var secondShopCollectionViewDataSource: SecondShopCollectionViewDataSource?
+    let searchViewModel: SearchViewModelProtocol = SearchViewModel()
+    let alertViewModel: AlertViewModelProtocol = AlertViewModel()
     
-    let searchViewModel = SearchViewModel()
-    let alertViewModel = AlertViewModel()
+    lazy var searchRouter: SearchRouterProtocol = SearchRouter(vc: self)
     
     let disposeBag = DisposeBag()
     
-    var yahooItemDatas = [YahooItemData]() // 検索結果を保存する
-    var rakutenItemDatas = [RakutenItemData]() // 検索結果を保存する
+    /// 検索結果を保存する
+    var yahooItemDatas = [YahooItemData]()
+    /// 検索結果を保存する
+    var rakutenItemDatas = [RakutenItemData]()
     //var imageCache = NSCache<AnyObject, UIImage>()
-    let priceFormat = NumberFormatter() // 金額のフォーマット
+    /// 金額のフォーマット
+    let priceFormat = NumberFormatter()
     
     
     override func viewDidLoad() {
@@ -36,29 +39,29 @@ class SearchViewController: UIViewController {
         firstShopCollectioinView.delegate = self
         firstShopCollectioinView.dataSource = self
         
-        priceFormat.numberStyle = .currency //通貨で使用する
-        priceFormat.currencyCode = "JPY" //日本の表示にする
+        /// 通貨で使用する
+        priceFormat.numberStyle = .currency
+        
+        /// 日本の表示にする
+        priceFormat.currencyCode = "JPY"
     }
     
     
-    // searchBar以外をタップしてキーボードを閉じる処理
-    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        self.view.endEditing(true)
-    }
-    
-    
-    // 遷移画面にデータを渡す p373
+    /// 遷移画面にデータを渡す
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if let cell = sender as? CollectionViewCell {
             if let webViewController = segue.destination as? ItemDetailViewController {
-                // 商品ページのURLを設定する
-                webViewController.itemUrl = cell.itemUrl
+                
+                searchRouter.push() { (ItemDetailViewController) -> Void in
+                    /// 商品ページのURLを設定する
+                    webViewController.itemUrl = cell.itemUrl
+                }
             }
         }
     }
     
     
-    //
+    /// timerIntervalで使用後消去
     @IBAction func realtimeButton(_ sender: Any) {
         var ref: DatabaseReference!
 
@@ -75,9 +78,8 @@ extension SearchViewController: UICollectionViewDelegate {
 
 
 extension SearchViewController: UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
-    // cellを表示する数を定義できる関数
+    /// cellを表示する数を定義できる関数
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        //return items.count
         switch collectionView.tag {
         case 0:
             return yahooItemDatas.count
@@ -87,7 +89,6 @@ extension SearchViewController: UICollectionViewDataSource, UICollectionViewDele
             assertionFailure("想定外のtagの検出です")
             return 0
         }
-        //return yahooItemDatas.count
     }
     
     // cellをカスタマイズできる関数
@@ -128,8 +129,7 @@ extension SearchViewController: UICollectionViewDataSource, UICollectionViewDele
             cell.itemUrl = itemData.itemUrl
             // 画像の設定処理
             let rakutenImageUrl = itemData.itemImageUrl
-            searchViewModel.getImageUrl(rakutenImageUrl: rakutenImageUrl).subscribe(onSuccess: {
-                result in
+            searchViewModel.getImageUrl(rakutenImageUrl: rakutenImageUrl).subscribe(onSuccess: { result in
                 cell.imageView.image = result
             }, onError: { error in
                 let message = "\(error.localizedDescription)"
@@ -162,7 +162,7 @@ extension SearchViewController: UISearchBarDelegate {
             return
         }
         
-        // 通信を使用し、Yahooから商品データを取得し画面に反映する
+        /// 通信を使用し、Yahooから商品データを取得し画面に反映する
         searchViewModel.getDataFromYahoo(keyword: keyword).subscribe(onSuccess: {
             result in
             // 処理を書く
@@ -178,7 +178,7 @@ extension SearchViewController: UISearchBarDelegate {
         })
         .disposed(by: disposeBag)
         
-        // 通信を使用し、楽天から商品データを取得し画面に反映する
+        /// 通信を使用し、楽天から商品データを取得し画面に反映する
         searchViewModel.getDataFromRakuten(keyword: keyword).subscribe(onSuccess: { result in
             //処理を書く
             self.rakutenItemDatas = result
@@ -219,5 +219,12 @@ extension SearchViewController: UISearchBarDelegate {
         }*/
         
         searchBar.resignFirstResponder() // キーボードを閉じる処理
+    }
+}
+
+extension SearchViewController: UITextFieldDelegate {
+    /// searchBar以外をタップしてキーボードを閉じる処理
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        self.view.endEditing(true)
     }
 }

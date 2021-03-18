@@ -16,6 +16,8 @@ target 'Shop Online' do
   pod 'Firebase/Crashlytics'
   pod 'FirebaseUI'
   pod 'GoogleSignIn'
+  pod 'RealmSwift'
+  pod 'KeychainAccess'
 
   target 'Shop OnlineTests' do
     inherit! :search_paths

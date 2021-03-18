@@ -6,7 +6,7 @@
 //
 
 import UIKit
-// 認証関係
+/// 認証関係
 import GoogleSignIn
 import FirebaseAuth
 import FirebaseUI
@@ -17,7 +17,6 @@ import FirebaseCrashlytics
 import RxSwift
 
 class LogInViewController: UIViewController, FUIAuthDelegate {
-    
     @IBOutlet weak var mailAddressTextField: UITextField!
     @IBOutlet weak var passwordTextField: UITextField!
     @IBOutlet weak var showPasswordSwitch: UISwitch!
@@ -26,23 +25,23 @@ class LogInViewController: UIViewController, FUIAuthDelegate {
     
     let alertViewModel: AlertViewModelProtocol = AlertViewModel()
     let logInViewModel: LogInViewModelProtocol = LogInViewModel()
+    let userDefaultsPresenter: UserDefaultsPresentation = UserDefaultsPresenter()
+    let forKey = "howToLogIn"
+    
+    lazy var logInRouter: LogInRouterProtocol = LogInRouter(vc: self)
+    
     let disposeBag = DisposeBag()
     
-    
-    
     var authHandle: AuthStateDidChangeListenerHandle?
-    let userDefaults = UserDefaults.standard
     var firstTimeSetup = true
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        mailAddressTextField.delegate = self
-        passwordTextField.delegate = self
-        
         GIDSignIn.sharedInstance()?.presentingViewController = self
         
-        // ログイン状況を確認してlabelにこのテキストを書く
+        /// ログイン状況を確認してlabelにこのテキストを書く
         logInViewModel.logInState().subscribe(onSuccess: { result in
             if result == "nil" {
                 self.showLogInStateLabel.text = "ログインされたことがないので新規登録をお願い致します。"
@@ -54,21 +53,19 @@ class LogInViewController: UIViewController, FUIAuthDelegate {
             self.present(alert, animated: true)
         })
         .disposed(by: disposeBag)
-        
     }
-    
     
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
         if Auth.auth().currentUser != nil, firstTimeSetup == true {
-            self.performSegue(withIdentifier: "SearchViewController", sender: self)
+            logInRouter.segue(withIdentifier: .SearchViewController)
         }
         
-        // ユーザーのログイン状態が変更される度に呼び出され、変更される度に実行したい処理をここに書きます。
+        /// ユーザーのログイン状態が変更される度に呼び出され、変更される度に実行したい処理をここに書きます。
         authHandle = Auth.auth().addStateDidChangeListener({ (auth, user) in
-            // ログイン状態が変更された時の処理を書く
+            /// ログイン状態が変更された時の処理を書く
         })
         firstTimeSetup = false
     }
@@ -76,21 +73,11 @@ class LogInViewController: UIViewController, FUIAuthDelegate {
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         
-        //
         Auth.auth().removeStateDidChangeListener(authHandle!)
-        //print("Auth.auth().removeStateDidChangeListener(authHandle!)")
     }
     
-    // textField以外をタップするとキーボードを閉じる
-    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        self.view.endEditing(true)
-    }
     
-    func transition() {
-        self.performSegue(withIdentifier: "SearchViewController", sender: self)
-    }
-    
-    // labelのアラートを出す
+    /// labelのアラートを出す
     func labelAlert(text: String) {
         messageLabel.isHidden = false
         messageLabel.text = text
@@ -100,14 +87,15 @@ class LogInViewController: UIViewController, FUIAuthDelegate {
         }
     }
     
-    // キーボードを閉じる
+    
+    /// キーボードを閉じる
     func closeKeyboard() {
         mailAddressTextField.endEditing(true)
         passwordTextField.endEditing(true)
     }
     
     
-    // パスワードを表示する
+    /// パスワードを表示する
     @IBAction func showpasswordSwitch(_ sender: Any) {
         let isOn = showPasswordSwitch.isOn
         switch isOn {
@@ -121,31 +109,27 @@ class LogInViewController: UIViewController, FUIAuthDelegate {
     }
     
     
-    // パスワードを忘れた時の処理
+    /// パスワードを忘れた時の処理
     @IBAction func forgetPasswordButton(_ sender: Any) {
         closeKeyboard()
+        logInRouter.segue(withIdentifier: .ForgetPasswordViewController)
     }
     
     
-    // メールアドレスでログイン
+    /// メールアドレスでログイン
     @IBAction func loginWithMailAddressButton(_ sender: Any)  {
         closeKeyboard()
-        // textFieldの確認
+        /// textFieldの確認
         guard let email = mailAddressTextField.text, mailAddressTextField.text != "" else {
             return labelAlert(text: "メールアドレスを登録してください")
         }
         guard let password = passwordTextField.text, passwordTextField.text != "" else {
             return labelAlert(text: "パスワードを登録してください")
         }
-        // 移行予定
-        /*var email: String { mailAddressTextField.text! }
-        var password: String { passwordTextField.text! }
-        */
         
-        // ログイン処理
+        /// ログイン処理
         logInViewModel.logInWithMailAddress(email: email, password: password).subscribe(onSuccess: { result in
-            self.performSegue(withIdentifier: "SearchViewController", sender: self)
-            //self.userDefaults.removeObject(forKey: "isSendEmail")
+            self.logInRouter.segue(withIdentifier: .SearchViewController)
         }, onError: { error in
             let alert = self.alertViewModel.showAlert(title: "", message: "\(error.localizedDescription)")
             self.present(alert, animated: true, completion: nil)
@@ -154,15 +138,15 @@ class LogInViewController: UIViewController, FUIAuthDelegate {
     }
     
     
-    // 新規登録
+    /// 新規登録
     @IBAction func signInWithMailAddressButton(_ sender: Any) {
         closeKeyboard()
-        // 画面遷移
-        
+        /// 画面遷移
+        logInRouter.segue(withIdentifier: .SignInWithMailAddressViewController)
     }
     
     
-    // Appleでサインイン
+    /// Appleでサインイン
     @IBAction func signInWithAppleButton(_ sender: Any) {
         closeKeyboard()
         if let authUI = FUIAuth.defaultAuthUI() {
@@ -175,20 +159,17 @@ class LogInViewController: UIViewController, FUIAuthDelegate {
     }
     
     func authUI(_ authUI: FUIAuth, didSignInWith authDataResult: AuthDataResult?, error: Error?) {
-        if let user = authDataResult?.user {
-            print("sign in with Apple as \(user.uid). Your email is: \(String(describing: user.email))")
-            userDefaults.set("Apple", forKey: "howToLogIn")
-            //transitionToSearchViewController()
-            self.performSegue(withIdentifier: "SearchViewController", sender: self)
+        if let _ = authDataResult?.user {
+            userDefaultsPresenter.set("Apple", forKey: forKey)
         }
     }
     
-    // 匿名でサインイン
+    /// 匿名でサインイン
     @IBAction func signInWithAnnoymouslyButton(_ sender: Any) {
         closeKeyboard()
         logInViewModel.signInWithAnnoymously().subscribe(onSuccess: { result in
             if result == true {
-                self.performSegue(withIdentifier: "SearchViewController", sender: self)
+                self.logInRouter.segue(withIdentifier: .SearchViewController)
             }
         }, onError: { error in
             self.labelAlert(text: "匿名のサインインに失敗しました: \(error)")
@@ -196,14 +177,12 @@ class LogInViewController: UIViewController, FUIAuthDelegate {
         .disposed(by: disposeBag)
     }
     
-    // サインアウトボタン
+    /// サインアウトボタン
     @IBAction func signOutButton(_ sender: Any) {
         closeKeyboard()
-        logInViewModel.signOut().subscribe(onSuccess: {
-            result in
+        logInViewModel.signOut().subscribe(onSuccess: { result in
             self.labelAlert(text: "サインアウトしました")
-        }, onError: {
-            error in
+        }, onError: { error in
             self.labelAlert(text: "サインアウトに失敗しました: \(error)")
         })
         .disposed(by: disposeBag)
@@ -212,46 +191,13 @@ class LogInViewController: UIViewController, FUIAuthDelegate {
 
 
 extension LogInViewController: UITextFieldDelegate {
-    // returnキーをタップしてキーボードを閉じる処理
+    /// returnキーをタップしてキーボードを閉じる処理
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         textField.resignFirstResponder()
         return true
     }
-}
-
-/*
-extension LoginViewController: GIDSignInDelegate {
-    func sign(_ signIn: GIDSignIn!, didSignInFor user: GIDGoogleUser!, withError error: Error!) {
-        guard error != nil else {
-            return print("GoogleSignInError: \(error.localizedDescription)")
-        }
-        
-        guard let authentication = user.authentication else {
-            return print("Google authenticationが存在しません")
-        }
-        let credential = GoogleAuthProvider.credential(withIDToken: authentication.idToken,
-                                                       accessToken: authentication.accessToken)
-        
-        Auth.auth().signIn(with: credential) { authResult, error in
-            if let error = error {
-                print("Google SignIn Failure!", error.localizedDescription)
-                return
-            }
-            
-            print("Google SignIn Success!")
-            self.userDefaults.set("Google", forKey: "howToLogIn")
-            self.transitionToSearchViewController()
-            
-        }
+    /// textField以外をタップするとキーボードを閉じる
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        self.view.endEditing(true)
     }
-    
-    
-}*/
-
-
-
-//class MailAddressTextField: UITextField {
-//    override func canPerformAction(_ action: Selector, withSender sender: Any?) -> Bool {
-//        return true
-//    }
-//}
+}

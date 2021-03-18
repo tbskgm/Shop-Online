@@ -9,15 +9,14 @@ import UIKit
 import FirebaseAuth
 
 class ForgetPasswordViewController: UIViewController {
-
     @IBOutlet weak var messageLabel: UILabel!
     @IBOutlet weak var mailAddressTextField: UITextField!
     @IBOutlet weak var sendButton: UIButton!
     
-    //let logInViewModel: LogInViewModelProtocol = LogInViewModel()
-    //let alertViewModel: AlertViewModelProtocol = AlertViewModel()
-    let logInViewModel = LogInViewModel()
-    let alertViewModel = AlertViewModel()
+    let logInViewModel: LogInViewModelProtocol = LogInViewModel()
+    let alertViewModel: AlertViewModelProtocol = AlertViewModel()
+    
+    lazy var router: LogInRouterProtocol = LogInRouter(vc: self)
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -25,7 +24,7 @@ class ForgetPasswordViewController: UIViewController {
         mailAddressTextField.delegate = self
     }
     
-    // labelのalertを出す
+    /// labelのalertを出す
     func labelAlert(text: String) {
         messageLabel.isHidden = false
         sendButton.isEnabled = false
@@ -37,13 +36,8 @@ class ForgetPasswordViewController: UIViewController {
         }
     }
     
-    // textField以外をタップするとキーボードを閉じる
-    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        self.view.endEditing(true)
-    }
     
-    
-    // パスワードを再設定する
+    /// パスワードを再設定する
     @IBAction func sendButton(_ sender: Any) {
         guard mailAddressTextField.text != "", let email = mailAddressTextField.text else {
             let alert = alertViewModel.showAlert(title: "", message: "メールアドレスを入力してください")
@@ -58,16 +52,19 @@ class ForgetPasswordViewController: UIViewController {
                 return
             }
             
-            // 明示的に設定するのではなく、デフォルトのアプリ言語を適用します。
+            /// 明示的に設定するのではなく、デフォルトのアプリ言語を適用します。
             Auth.auth().useAppLanguage()
-            // 明示的に指定する場合
-            //Auth.auth().languageCode = "fr"
             
-            // ログイン画面に戻る
+            /**
+                /// 明示的に指定する場合
+                Auth.auth().languageCode = "fr"
+            */
+                
+            /// ログイン画面に戻る
             self.labelAlert(text: "メールを送信しました")
             let queue = DispatchQueue.main
             queue.asyncAfter(deadline: .now() + 2) {
-                self.dismiss(animated: true, completion: nil)
+                self.router.dismiss(animated: true, completion: nil)
             }
         }
         
@@ -75,9 +72,14 @@ class ForgetPasswordViewController: UIViewController {
     
 }
 extension ForgetPasswordViewController: UITextFieldDelegate {
-    // returnキーをタップしてキーボードを閉じる処理
+    /// returnキーをタップしてキーボードを閉じる処理
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         textField.resignFirstResponder()
         return true
+    }
+    
+    /// textField以外をタップするとキーボードを閉じる
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        self.view.endEditing(true)
     }
 }

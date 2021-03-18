@@ -8,7 +8,7 @@
 import RxSwift
 import FirebaseAuth
 
-
+/// ログイン方法の識別
 enum HowToLogIn {
     case none
     case gest
@@ -35,51 +35,40 @@ enum HowToLogIn {
     }
 }
 
-
-enum SignInWithMailAddressState: String {
-    case isRegistered
-    case sendEmail
-    case error
-}
-
-
-enum LogInError {
+/// エラーの識別
+enum LogInError: LocalizedError, Error {
     case thePasswordIsInvalidOrTheUserDoesNotHaveAPassword
     
-    init(error: String) {
-        switch error {
-        case "The password is invalid or the user does not have a password.":
-            self = .thePasswordIsInvalidOrTheUserDoesNotHaveAPassword
-        default:
-            fatalError("想定外のエラーの検出")
+    var errorDescription: String? {
+        switch self {
+        case .thePasswordIsInvalidOrTheUserDoesNotHaveAPassword:
+            return "パスワードが無効であるか、ユーザーがパスワードを持っていない場合があります"
+        //case .unknown: return "unknown error happened"
         }
     }
+    
 }
 
-
+/// LogInRepositoryのプロトコル
 protocol LogInRepositoryProtocol {
     func logInState(howToLogIn: String) -> Single<String>
     
     func logInWithMailAddress(email: String, password: String) -> Single<Bool>
     
-    func signInWithMailAddress(email: String, password: String) -> (case: SignInWithMailAddressState, value: String)
+    func signInWithMailAddress(email: String, password: String) -> Single<Bool>
     
-    func reSendEmail(email: String) -> Single<Bool>
-    
-    func sendAuthenticationLinkEmail(email: String) -> Single<Bool>
+    func sendLinkEmail(email: String) -> Single<Bool>
     
     func signInWithAnnoymously() -> Single<Bool>
     
     func signOut() -> Single<Bool>
 }
-
-
-
+/// ログインに関するRepository
 class LogInRepository: LogInRepositoryProtocol {
-    
+    /// ログイン状態を返す関数
     func logInState(howToLogIn: String) -> Single<String> {
         return Single<String>.create { single -> Disposable in
-            // ログイン状況を確認してlabelにこのテキストを書く
+            /// ログイン状況を確認してlabelにこのテキストを書く
             switch HowToLogIn(stringHowToLoginCese: howToLogIn) {
             case HowToLogIn.none:
                 single(.success("現在ログインされていません"))
@@ -97,117 +86,58 @@ class LogInRepository: LogInRepositoryProtocol {
     }
     
     
-    // メールアドレスでログイン
+    /// メールアドレスでログイン
     func logInWithMailAddress(email: String, password: String) -> Single<Bool> {
         return Single<Bool>.create { single -> Disposable in
             Auth.auth().signIn(withEmail: email, password: password) { authResult, error in
-                guard let authResult = authResult, error == nil else {
-                    print("サインインに失敗しました:" ,error!.localizedDescription)
+                guard let _ = authResult, error == nil else {
                     return single(.error(error!))
                 }
-                let user = authResult.user
-                print("サインインに成功しました", user.email!)
                 single(.success(true))
             }
             return Disposables.create()
         }
     }
-    /*
-    func exmapleMailAddressLogIn() {
-        Auth.auth().signIn(withEmail: mail, password: password) { (result, error) in
-            if error == nil, let result = result, result.user.isEmailVerified {
-                self.performSegue(withIdentifier: "toMainView", sender: result.user)
-            } else if error != nil {
-                let alert = UIAlertController(title: "ログインエラー", message: "パスワードまたはメールアドレスが違います。", preferredStyle: .alert)
-                alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
-                self.present(alert, animated: true, completion: nil)
-            }
-        }
-    }*/
     
     
-    // メールアドレスでサインイン
-    func signInWithMailAddress(email: String, password: String) -> (case: SignInWithMailAddressState, value: String) {
-        var returnValue = "isRegistered"
-        var returnCase = SignInWithMailAddressState.isRegistered
-        Auth.auth().createUser(withEmail: email, password: password) { authResult, error in
-            guard let authResult = authResult, error == nil else {
-                returnValue = error!.localizedDescription
-                returnCase = .error
-                return
-            }
-            
-            authResult.user.sendEmailVerification { error in
-                guard error == nil else {
-                    returnValue = error!.localizedDescription
-                    returnCase = .error
+    /// メールアドレスでサインイン
+    func signInWithMailAddress(email: String, password: String) -> Single<Bool> {
+        return Single<Bool>.create { single -> Disposable in
+            /// ユーザーの作成
+            Auth.auth().createUser(withEmail: email, password: password) { authResult, error in
+                guard let authResult = authResult, error == nil else {
+                    single(.error(error!))
                     return
                 }
                 
-                self.sendAuthenticationLinkEmail(email: email).subscribe(onSuccess: { result in
-                    returnValue = "sendEmail"
-                    returnCase = .sendEmail
-                }, onError: { error in
-                    returnValue = error.localizedDescription
-                    returnCase = .error
-                })
-                .dispose()
-            }
-        }
-        return (returnCase, returnValue)
-    }
-    /*func signInWithMailAddress(email: String, password: String) -> Single<Bool> {
-        return Single<Bool>.create { single -> Disposable in
-            Auth.auth().createUser(withEmail: email, password: password) { authResult, error in
-                guard let authResult = authResult, error == nil else {
-                    return single(.error(error!))
-                }
-                
-                authResult.user.sendEmailVerification { (error) in
+                authResult.user.sendEmailVerification { error in
                     guard error == nil else {
-                        return single(.error(error!))
+                        single(.error(error!))
+                        return
                     }
                     single(.success(true))
-                    self.sendAuthenticationLinkEmail(email: email)
+                    /*
+                    /// メールリンク送信
+                    self.sendLinkEmail(email: email).subscribe(onSuccess: { result in
+                        single(.success(true))
+                    }, onError: { error in
+                        single(.error(error))
+                     })
+                     .dispose()
+                    */
                 }
             }
             return Disposables.create()
         }
-    }*/
-    
-    
-    // 認証メールを再送信
-    func reSendEmail(email: String) -> Single<Bool> {
-        return Single<Bool>.create { single -> Disposable in
-            self.sendAuthenticationLinkEmail(email: email).subscribe(
-                onSuccess: { result in
-                    single(.success(result))
-                }, onError: { error in
-                    single(.error(error))
-                })
-                .dispose()
-            return Disposables.create()
-        }
     }
-    /*func reSendEmail(email: String) -> Single<Bool> {
-        return Single<Bool>.create { single -> Disposable in
-            self.sendAuthenticationLinkEmail(email: email).subscribe(onSuccess: {
-                result in
-                single(.success(true))
-            }, onError: {
-                error in
-                single(.error(error))
-            })
-            return Disposables.create()
-        }
-    }*/
     
-    // 確認メールを送る
-    func sendAuthenticationLinkEmail(email: String) -> Single<Bool> {
+    
+    /// メールリンクを送信する
+    func sendLinkEmail(email: String) -> Single<Bool> {
         return Single<Bool>.create { single -> Disposable in
             let actionCodeSettings = ActionCodeSettings()
             actionCodeSettings.url = URL(string: "https://Shop_Online.com/createAccount")
-            // サインイン操作はアプリ内で常に完了している必要があります。
+            /// サインイン操作はアプリ内で常に完了している必要があります。
             actionCodeSettings.handleCodeInApp = true
             actionCodeSettings.setIOSBundleID(Bundle.main.bundleIdentifier!)
             actionCodeSettings.setAndroidPackageName("com.example.android",
@@ -218,7 +148,7 @@ class LogInRepository: LogInRepositoryProtocol {
                     single(.error(error))
                     return
                 }
-                // リンクが正常に送信されました。ユーザーに通知します。メールをローカルに保存しておくことで、ユーザーに再度メールを要求する必要がなくなります。同じデバイスでリンクを開いている場合。
+                
                 UserDefaults.standard.set(email, forKey: "Email")
                 single(.success(true))
             }
@@ -227,6 +157,7 @@ class LogInRepository: LogInRepositoryProtocol {
     }
     
     
+    /// 匿名でログインする関数
     func signInWithAnnoymously() -> Single<Bool> {
         return Single<Bool>.create { single -> Disposable in
             Auth.auth().signInAnonymously { authResult, error in
@@ -239,15 +170,15 @@ class LogInRepository: LogInRepositoryProtocol {
         }
     }
     
+    
+    /// サインアウトする関数
     func signOut() -> Single<Bool> {
         return Single<Bool>.create { single -> Disposable in
-            let firebaseAuth = Auth.auth()
             do {
+                let firebaseAuth = Auth.auth()
                 try firebaseAuth.signOut()
-                //print("アインアウト成功")
                 single(.success(true))
             } catch let signOutError as NSError {
-                //print ("サインアウトに失敗しました: %@", signOutError)
                 single(.error(signOutError))
             }
             return Disposables.create()

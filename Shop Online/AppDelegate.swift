@@ -16,7 +16,6 @@ import FBSDKCoreKit
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate, GIDSignInDelegate {
-    
     var window: UIWindow?
     
     let gcmMessageIDKey = "gcm.message_id"
@@ -88,7 +87,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, GIDSignInDelegate {
       }
     
     func sign(_ signIn: GIDSignIn!, didSignInFor user: GIDGoogleUser!, withError error: Error?) {
-        if let error = error {
+        if let _ = error {
             return
         }
         
@@ -98,7 +97,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, GIDSignInDelegate {
         let credential = GoogleAuthProvider.credential(withIDToken: authentication.idToken,
                                                        accessToken: authentication.accessToken)
         Auth.auth().signIn(with: credential) { authResult, error in
-            if let error = error {
+            if let _ = error {
                 return
             }
             
@@ -109,13 +108,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, GIDSignInDelegate {
             let storyboard = UIStoryboard(name: "Main", bundle: nil)
             let topviewController = storyboard.instantiateViewController(withIdentifier: "SearchViewController")
             (UIApplication.shared.keyWindow?.rootViewController as! UINavigationController).pushViewController(topviewController, animated: false)
-            
-            /*失敗例*/
-            //let storyboard = UIStoryboard(name: "Main", bundle: nil)
-            //let topviewController = storyboard.instantiateViewController(withIdentifier: "ViewController")
-            //window!.rootViewController = topviewController
-            //window!.makeKeyAndVisible()
-            
         }
     }
     
@@ -208,43 +200,3 @@ extension AppDelegate : MessagingDelegate {
         NotificationCenter.default.post(name: Notification.Name("FCMToken"), object: nil, userInfo: dataDict)
     }
 }
-
-/*
-extension AppDelegate: GIDSignInDelegate {
-    func sign(_ signIn: GIDSignIn!, didSignInFor user: GIDGoogleUser!, withError error: Error?) {
-        if let error = error {
-            // ...
-            return print("GoogleSignInError: \(error.localizedDescription)")
-        }
-        
-        guard let authentication = user.authentication else {
-            return print("Google authenticationが存在しません")
-        }
-        let credential = GoogleAuthProvider.credential(withIDToken: authentication.idToken,
-                                                       accessToken: authentication.accessToken)
-        Auth.auth().signIn(with: credential) { authResult, error in
-            if let error = error {
-                print("Google SignIn Failure!", error.localizedDescription)
-                return
-            }
-            
-            print("Google SignIn Success!")
-            let userDefaults = UserDefaults.standard
-            userDefaults.set("Google", forKey: "howToLogIn")
-            
-            //func transition() -> Single<Bool> {
-            //    transitionToSearchViewController()
-            //}
-            
-        }
-    }
-    
-    // ユーザーがアプリから切断する処理
-    func sign(_ signIn: GIDSignIn!, didDisconnectWith user: GIDGoogleUser!, withError error: Error!) {
-        // Perform any operations when the user disconnects from app here.
-        // ...
-    }
-    
-    
-}
-*/
