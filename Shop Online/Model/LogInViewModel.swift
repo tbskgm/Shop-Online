@@ -14,21 +14,23 @@ protocol LogInViewModelProtocol {
     
     func logInWithMailAddress(email: String, password: String) -> Single<Bool>
     
-    func signInWithMailAddress(email: String, password: String) -> (case: SignInWithMailAddressState, value: String)
+    func signInWithMailAddress(email: String, password: String) -> Single<Bool>
     
-    func reSendEmail(email: String) -> Single<Bool>
+    func sendLinkEmail(email: String) -> Single<Bool>
     
     func signInWithAnnoymously() -> Single<Bool>
     
     func signOut() -> Single<Bool>
 }
+/// ログインのViewModel
 class LogInViewModel: LogInViewModelProtocol {
     let logInRepository: LogInRepositoryProtocol = LogInRepository()
-    let userDefaults = UserDefaults.standard
+    let userDefaultsPresenter: UserDefaultsPresentation = UserDefaultsPresenter()
     let forKey = "howToLogIn"
     
+    /// ログイン状態を取得
     func logInState() -> Single<String> {
-        guard let howToLogIn = self.userDefaults.string(forKey: forKey) else {
+        guard let howToLogIn = userDefaultsPresenter.string(forKey: forKey) else {
             return Single<String>.create { single -> Disposable in
                 single(.success("nil"))
                 return Disposables.create()
@@ -37,40 +39,40 @@ class LogInViewModel: LogInViewModelProtocol {
         return logInRepository.logInState(howToLogIn: howToLogIn)
     }
     
+    /// メールアドレスでログイン
     func logInWithMailAddress(email: String, password: String) -> Single<Bool> {
         return logInRepository.logInWithMailAddress(email: email, password: password).map { bool -> Bool in
             if bool == true {
-                self.userDefaults.set("mailAddress", forKey: self.forKey)
+                self.userDefaultsPresenter.set("mailAddress", forKey: self.forKey)
             }
             return bool
         }
     }
     
-    func signInWithMailAddress(email: String, password: String) -> (case: SignInWithMailAddressState, value: String) {
-        let result = logInRepository.signInWithMailAddress(email: email, password: password)
-        let resultCase = result.case
-        if resultCase == .sendEmail {
-            userDefaults.set(true, forKey: "isSendEmail")
-        }
-        return result
+    /// メールアドレスでサインイン
+    func signInWithMailAddress(email: String, password: String) -> Single<Bool> {
+        return logInRepository.signInWithMailAddress(email: email, password: password)
     }
     
-    func reSendEmail(email: String) -> Single<Bool> {
-        return logInRepository.reSendEmail(email: email)
+    /// メールリンクを送信する関数
+    func sendLinkEmail(email: String) -> Single<Bool> {
+        return logInRepository.sendLinkEmail(email: email)
     }
     
+    /// 匿名でログインする関数
     func signInWithAnnoymously() -> Single<Bool> {
         logInRepository.signInWithAnnoymously().map { bool -> Bool in
             if bool == true {
-                self.userDefaults.set("gest", forKey: self.forKey)
+                self.userDefaultsPresenter.set("gest", forKey: self.forKey)
             }
             return bool
         }
     }
     
+    /// サインアウトする関数
     func signOut() -> Single<Bool> {
         logInRepository.signOut().map{ bool -> Bool in
-            self.userDefaults.set("none", forKey: self.forKey)
+            self.userDefaultsPresenter.set("none", forKey: self.forKey)
             return bool
         }
     }
